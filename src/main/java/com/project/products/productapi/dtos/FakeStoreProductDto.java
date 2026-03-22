@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class FakeStoreProductDto {
     private Long id;
     private String title;
-    private Double price;
+     private Double price;
     private String description;
     private String category;
     private String image;
@@ -24,14 +24,12 @@ public class FakeStoreProductDto {
         product.setPrice(this.price);
         product.setDescription(this.description);
         product.setImageUrl(this.image);
-        
         // Only create category if category name is provided
         if (this.category != null && !this.category.isEmpty()) {
             Category categoryObj = new Category();
             categoryObj.setName(this.category);
             product.setCategory(categoryObj);
         }
-        
         return product;
     }
 
