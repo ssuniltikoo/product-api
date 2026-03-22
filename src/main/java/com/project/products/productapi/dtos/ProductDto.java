@@ -16,11 +16,6 @@ public class ProductDto {
     private Double price;
     private CategoryDto category;
 
-    /**
-     * Static factory method for high-throughput systems -
-     * creates ProductDto without intermediate objects
-     * Avoids unnecessary instantiation and mutable patterns
-     */
     public static ProductDto from(Product product) {
         if (product == null) {
             return null;

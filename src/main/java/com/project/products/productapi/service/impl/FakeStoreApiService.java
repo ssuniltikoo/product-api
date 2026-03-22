@@ -7,6 +7,7 @@ import com.project.products.productapi.exceptions.ProductNotFoundException;
 import com.project.products.productapi.exceptions.ServiceNotFoundException;
 import com.project.products.productapi.model.Product;
 import com.project.products.productapi.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Slf4j
 public class FakeStoreApiService implements ProductService {
 
     private final ApiClient apiClient;
@@ -41,6 +43,7 @@ public class FakeStoreApiService implements ProductService {
             if(fakeStoreProductDto == null) {
                 throw new ProductNotFoundException("Product not found for id : " + productId);
             }
+            log.info("Product details retrieved successfully for product with id: {}", productId);
             return fakeStoreProductDto.toProduct();
         }
 
@@ -60,7 +63,32 @@ public class FakeStoreApiService implements ProductService {
     }
 
     @Override
-    public Product createProduct(Product product) {
+    public Product createProduct(String title, String description, String category, double price, String image){
+        FakeStoreProductDto product = new FakeStoreProductDto();
+        product.setTitle(title);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setImage(image);
+
+      ResponseEntity<FakeStoreProductDto> fakeStoreProductResponse = apiClient.getRestTemplate().postForEntity(URL,
+              product, FakeStoreProductDto.class);
+
+        if(fakeStoreProductResponse.getStatusCode().is2xxSuccessful() && fakeStoreProductResponse.hasBody()){
+            FakeStoreProductDto fakeStoreProductDto = fakeStoreProductResponse.getBody();
+            if(fakeStoreProductDto == null) {
+                throw new ProductNotFoundException("Product not found for id : " + product.getId()  );
+            }
+            log.info("Product created successfully with id: {}", product.getId());
+            return fakeStoreProductDto.toProduct();
+        }
+
+        if (fakeStoreProductResponse.getStatusCode().is4xxClientError()) {
+            throw new ProductNotFoundException("client error Invalid product id : " + product.getId());
+        }
+        if (fakeStoreProductResponse.getStatusCode().is5xxServerError()) {
+            throw new ServiceNotFoundException("Internal Server error");
+        }
         return null;
     }
 
